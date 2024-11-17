@@ -38,14 +38,19 @@ app.get("/auth", (req, res) => {
 // Callback endpoint
 app.get("/callback", async (req, res) => {
   const { code } = req.query;
+  // console.log("code", code);
   const tokenConfig = {
     code,
     redirect_uri: REDIRECT_URI,
   };
 
+  // console.log({ tokenConfig });
+
   try {
     // Exchange authorization code for access token
     const result = await oauth2Client.getToken(tokenConfig);
+
+    // console.log({ result });
     const accessToken = result.token.access_token;
 
     // Log access token for debugging
@@ -60,16 +65,16 @@ app.get("/callback", async (req, res) => {
     });
 
     const user = userResponse.data;
-    console.log("User Info:", user);
+    // console.log("User Info:", user);
 
     // Fetch database list (optional: if you want to log database IDs)
     const databasesResponse = await axios.post(
       "https://api.notion.com/v1/search",
       {
-        filter: {
-          property: "object",
-          value: "database",
-        },
+        // filter: {
+        //   property: "object",
+        //   value: "database",
+        // },
       },
       {
         headers: {
@@ -80,19 +85,20 @@ app.get("/callback", async (req, res) => {
     );
 
     const databases = databasesResponse.data.results;
-    console.log("Databases:", databases);
+    console.log("Databases:", databasesResponse.data.results[0].url);
 
     // Extract secret (access token) and database IDs
-    const databaseIds = databases.map((db) => db.id);
-    console.log("Database IDs:", databaseIds);
+    // const databaseIds = databases.map((db) => db.id);
+    // console.log("Database IDs:", databaseIds);
 
     // Respond with user info and database IDs
-    res.json({
-      message: "Authentication successful",
-      accessToken,
-      user,
-      databaseIds,
-    });
+    // res.json({
+    //   message: "Authentication successful",
+    //   accessToken,
+    //   user,
+    //   databaseIds,
+    // });
+    return res.redirect("https://webflow.com/dashboard");
   } catch (error) {
     console.error("Access Token Error:", error.message);
     res.status(500).json({ error: "Failed to obtain access token" });
